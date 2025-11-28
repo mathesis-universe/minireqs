@@ -1,5 +1,12 @@
 .venv
 __pycache__
+*.pyc
 **/*.log
+
+# Build folders
+dist/
+build/
+**/*.egg-info/
+
 
 probe/
