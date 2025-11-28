@@ -19,6 +19,7 @@ import ast
 import importlib
 import importlib.metadata as md # Python 3.8+ required
 
+import os
 from pathlib import Path
 
 # Utility function
@@ -99,9 +100,16 @@ def find_pip_pkg(import_name):
 # Get the possible names of imports that are needed from a script file 
 # Core function   
 def get_imports(script_path):
-    with open(script_path, 'r') as file:
-        tree = ast.parse(file.read(), filename=script_path)
 
+    if not os.path.isfile(script_path):
+        return []
+
+    with open(script_path, 'r') as file:
+        content = file.read()
+        if not content.strip():  # empty or whitespace-only file
+            return []  
+        tree = ast.parse(content, filename=script_path)
+    
     imports = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -130,6 +138,10 @@ def extract_pip_requirement(script_path = 'main.py', req_path = 'req_main.txt', 
     for i, file in enumerate(file_list):
         print(i, file)
         list_imports = list_imports + get_imports(file)
+
+    if list_imports == []:
+        print("List of imports is empty")
+        return pd.DataFrame()
 
     list_imports = list(set(list_imports))    
 
