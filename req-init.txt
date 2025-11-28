@@ -1,0 +1,18 @@
+ipykernel
+nbformat
+
+pandas
+
+# packages to test 
+pandas-gbq
+google-cloud-storage
+google-cloud-bigquery-storage
+mysql-connector-python
+beautifulsoup4
+Pillow
+scikit-learn
+protobuf
+opencv-python
+python-dateutil
+
+

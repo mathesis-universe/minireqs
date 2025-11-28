@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=67", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "minireqs"                    # pip install name
+version = "0.1.0"
+description = ""
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name="Lei Liu", email="liu30nk@gmail.com"}]
+requires-python = ">=3.12"
+dependencies = ["pandas>=2.0.0"]  # runtime deps
+
+[project.urls]
+Homepage = "https://github.com/username/minireqs"
