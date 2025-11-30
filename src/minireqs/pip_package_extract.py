@@ -22,49 +22,8 @@ import importlib.metadata as md # Python 3.8+ required
 import os
 from pathlib import Path
 
-# Utility function
-def find_py_files(script_path):
-    """
-    Return a list of .py file paths from a file or a folder.
-    
-    Args:
-        script_path (str or Path): path to a python file or folder
-    
-    Returns:
-        List[Path]: list of .py file paths
-    """
-    script_path = Path(script_path)
+from helpers import safe_import, find_py_files
 
-    if script_path.is_file() and script_path.suffix == ".py":
-        # Single file
-        return [script_path.resolve()]
-    
-    elif script_path.is_dir():
-        # Folder: recursively find all .py files
-        py_files = list(script_path.rglob("*.py"))
-        return [p.resolve() for p in py_files]
-    
-    else:
-        # Not a valid file or folder
-        print(f"Error: {script_path} is neither a .py file nor a directory.")
-        return []
-
-# Safely import a possibly valid import_name
-# Unility function
-def safe_import(name):
-    """
-    Import a module safely by progressively stripping attributes.
-    Example:
-        'google.cloud.storage' → try full, then try 'google.cloud', then 'google'
-    """
-    parts = name.split(".")
-    for i in range(len(parts), 0, -1):
-        module_name = ".".join(parts[:i])
-        try:
-            return importlib.import_module(module_name)
-        except ModuleNotFoundError:
-            continue
-    return None
 
 # Find the corresponding pip install package requirements 
 # of a name in import statement.
