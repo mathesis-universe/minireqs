@@ -5,6 +5,7 @@ pytest
 twine
 
 pandas
+uv 
 
 # packages installed to test functions
 pandas-gbq

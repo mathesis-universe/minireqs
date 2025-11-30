@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "minireqs"                    # pip install name
-version = "0.2.1"
+version = "0.2.2"
 description = "A lightweight Python utility that scans .py files to detect all import statements, identifies the corresponding PyPI packages, and determines their installed version numbers. This tool automatically generates an accurate and minimal requirements.txt (or dependency list), making it ideal for packaging, deployment, and environment reproduction."
 readme = "README.md"
 license = {text = "LICENSE"}
@@ -20,8 +20,8 @@ dependencies = [
 # Optional extra: NumPy 1.x + older pandas
 [project.optional-dependencies]
 Numpy1 = [
-    "numpy>=1.21,<2.0.0",
-    "pandas>=2.0,<2.2.2"
+    "numpy>=1.21.0,<2.0.0",
+    "pandas>=2.0.0,<2.2.2"
 ]
 
 [project.urls]

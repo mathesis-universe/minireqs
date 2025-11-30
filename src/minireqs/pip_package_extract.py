@@ -130,7 +130,10 @@ def get_imports(script_path):
 
 # Find all pip install requirements from a py file or all py files in a folder
 # Core function
-def extract_pip_requirement(script_path = 'main.py', req_path = 'req_main.txt', QA=False):
+def extract_pip_requirement(
+    script_path = 'main.py', 
+    req_path = 'req_main.txt', 
+    QA=False):
     
     file_list = find_py_files(script_path)
 
@@ -145,7 +148,7 @@ def extract_pip_requirement(script_path = 'main.py', req_path = 'req_main.txt', 
 
     list_imports = list(set(list_imports))    
 
-    combine_pair = lambda pair: f"{pair[0]}={pair[1]}" if pair[0] is not None and pair[1] is not None else None
+    combine_pair = lambda pair: f"{pair[0]}=={pair[1]}" if pair[0] is not None and pair[1] is not None else None
 
     df_pip_pkg = pd.DataFrame({
         'import_name': list_imports,
