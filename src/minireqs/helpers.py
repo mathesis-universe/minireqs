@@ -18,6 +18,7 @@ import ast
 import importlib
 import importlib.metadata as md # Python 3.8+ required
 from importlib.metadata import version, PackageNotFoundError
+from packaging.requirements import Requirement
 import subprocess
 import sys
 import os
@@ -74,10 +75,19 @@ def safe_import(name):
 # from a requirements file.
 # Running the command line scripts from python
 
+def compile_requirements(input_file, output_file=None, sys_platform=None):
+    """
+    Compile requirements file using uv pip compile.
 
-def compile_requirements(input_file, output_file=None):
-    """Compile requirements file using uv pip compile."""
+    Popular sys_platform values: 'universal', 'win32', 'linux', 'darwin' 
+    
+    """
     cmd = [sys.executable, '-m', 'uv', 'pip', 'compile', input_file]
+
+    if sys_platform == 'universal':
+        cmd.extend(['--universal'])
+    elif sys_platform is not None:
+        cmd.extend(['--python-platform', sys_platform])
     
     if output_file:
         cmd.extend(['-o', output_file])
@@ -146,7 +156,7 @@ def check_installed_versions(requirements_file, req_installed_file = '_req_insta
 
     return any_nomatch, df_comp
 
-# Find the requirements (package==version) and return them as  a list 
+# Find the requirements (package==version) and return them as a list 
 def list_requirements(path):
     reqs = []
     with open(path) as f:
@@ -157,3 +167,17 @@ def list_requirements(path):
             reqs.append(line)
     return reqs
 
+
+# Find packages that are platform dependent
+# from packaging.requirements import Requirement
+def find_platform_specific(req_file):
+    out = []
+    with open(req_file) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            req = Requirement(line)
+            if req.marker is not None:  # platform-specific or conditional
+                out.append(line)
+    return out
