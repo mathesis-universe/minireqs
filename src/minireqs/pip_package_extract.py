@@ -24,11 +24,19 @@ import os
 import tempfile
 from pathlib import Path
 
-from .helpers import safe_import, find_py_files, \
-    list_requirements, \
-    compile_requirements, \
-    check_installed_versions
-    
+TEST_MODE = False
+
+if TEST_MODE:
+    from helpers import safe_import, find_py_files, \
+        list_requirements, \
+        compile_requirements, \
+        check_installed_versions
+else:
+    from .helpers import safe_import, find_py_files, \
+        list_requirements, \
+        compile_requirements, \
+        check_installed_versions
+  
 
 # Find the corresponding pip install package requirements 
 # of a name in import statement.
