@@ -48,15 +48,18 @@ pip install minireqs[Numpy1]
 ## Usage
 
 ```python
-from minireqs.pip_package_extract import extract_pip_requirement
+from minireqs.pip_package_extract import extract_pip_requirement, generate_full_requirements
 
 # Extract requirements from a file or directory
 df = extract_pip_requirement('my_script.py', 'requirements.txt')
+
+# Generate a full universal requirements file from a minimum requirements file
+generate_full_requirements(min_req_file, full_universal_req_file)
 ```
 
 ## Requirements
 
 - Python >= 3.10
-- Default option: (numpy >= 2.0.0, pandas >= 2.2.2)
-- [Numpy1] option: (1.21.0 <= numpy < 2.0.0, 2.0.0 <= pandas < 2.2.2)
+- Default option: (numpy >= 2.0.0, pandas >= 2.2.2, uv)
+- [Numpy1] option: (1.21.0 <= numpy < 2.0.0, 2.0.0 <= pandas < 2.2.2, uv)
 

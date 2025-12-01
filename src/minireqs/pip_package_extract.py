@@ -18,53 +18,15 @@ import pandas as pd
 import ast
 import importlib
 import importlib.metadata as md # Python 3.8+ required
-
+import random
+import string
 import os
 from pathlib import Path
 
-# Utility function
-def find_py_files(script_path):
-    """
-    Return a list of .py file paths from a file or a folder.
-    
-    Args:
-        script_path (str or Path): path to a python file or folder
-    
-    Returns:
-        List[Path]: list of .py file paths
-    """
-    script_path = Path(script_path)
-
-    if script_path.is_file() and script_path.suffix == ".py":
-        # Single file
-        return [script_path.resolve()]
-    
-    elif script_path.is_dir():
-        # Folder: recursively find all .py files
-        py_files = list(script_path.rglob("*.py"))
-        return [p.resolve() for p in py_files]
-    
-    else:
-        # Not a valid file or folder
-        print(f"Error: {script_path} is neither a .py file nor a directory.")
-        return []
-
-# Safely import a possibly valid import_name
-# Unility function
-def safe_import(name):
-    """
-    Import a module safely by progressively stripping attributes.
-    Example:
-        'google.cloud.storage' → try full, then try 'google.cloud', then 'google'
-    """
-    parts = name.split(".")
-    for i in range(len(parts), 0, -1):
-        module_name = ".".join(parts[:i])
-        try:
-            return importlib.import_module(module_name)
-        except ModuleNotFoundError:
-            continue
-    return None
+from helpers import safe_import, find_py_files, \
+    list_requirements, \
+    compile_requirements, \
+    check_installed_versions
 
 # Find the corresponding pip install package requirements 
 # of a name in import statement.
@@ -165,6 +127,75 @@ def extract_pip_requirement(
         [['import_name','requirement']]\
             .drop_duplicates(subset=['requirement'], keep='first').reset_index(drop=True)
     return df_pip_pkg_out
+
+# Generate a full requirements file from a minimal requirements file 
+# including transitive packages and their versions; then compare
+# the versions of actually installed packages from the full requirements
+# file; use the actually installed versions as the input, to generate the final
+# compiled version, compare with the installed version; if they are the same,
+# re-genrate the compiled version using the universal platform option.
+
+# import random
+# import string
+# import os 
+
+def generate_full_requirements(min_req_file, full_universal_req_file):
+
+    # Generate temporary req files
+    compiled_req_file1 = ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + '.txt'
+    compiled_req_file2 = ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + '.txt'
+    installed_req_file = ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + '.txt'
+
+    # Step 1
+    print(f'Step 1: find all packages required by {min_req_file}.')
+    compile_requirements(min_req_file, compiled_req_file1)  
+    print("\n")  
+
+    # Step 2
+    print(f"Step 2: compare the versions in compiled_req_file1 with those actaully installed")
+    any_nomatch, df_comp = check_installed_versions(compiled_req_file1, installed_req_file)
+    print(f"Is there any mismatched version: {any_nomatch}\n")
+
+    # Step 3
+    print("Step 3: compile again to double check the installed versions have no conflicts")
+    compile_requirements(installed_req_file, compiled_req_file2)
+
+    set_req1 = set(list_requirements(installed_req_file))
+    set_req2 = set(list_requirements(compiled_req_file2))
+    print(f"No conflicts: {set_req1 == set_req2}\n")
+
+    # Step 4 (output)
+    if set_req1 == set_req2:
+        compile_requirements(installed_req_file, full_universal_req_file, sys_platform='universal')
+        print(f"Full universal requirements file generated: {full_universal_req_file}")
+    else:
+        print("Error: manually check the requirments files!")
+
+    # Delete the temporary files
+    file_path = compiled_req_file1
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        print(f"{file_path} deleted")
+    else:
+        print(f"{file_path} does not exist")
+
+    file_path = compiled_req_file2
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        print(f"{file_path} deleted")
+    else:
+        print(f"{file_path} does not exist")
+
+    file_path = installed_req_file
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        print(f"{file_path} deleted")
+    else:
+        print(f"{file_path} does not exist")
+
+    return set_req1 == set_req2
+    
+
 
 if __name__ == '__main__':
     df_pip_package = extract_pip_requirement()
