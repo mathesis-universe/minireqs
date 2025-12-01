@@ -21,6 +21,7 @@ import importlib.metadata as md # Python 3.8+ required
 import random
 import string
 import os
+import tempfile
 from pathlib import Path
 
 from .helpers import safe_import, find_py_files, \
@@ -139,13 +140,18 @@ def extract_pip_requirement(
 # import random
 # import string
 # import os 
+# import tempfile
 
 def generate_full_requirements(min_req_file, full_universal_req_file):
 
     # Generate temporary req files
-    compiled_req_file1 = ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + '.txt'
-    compiled_req_file2 = ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + '.txt'
-    installed_req_file = ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + '.txt'
+    rand_tempfile = lambda: os.path.join(
+        tempfile.gettempdir(),
+        ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + ".txt"
+    )
+    compiled_req_file1 = rand_tempfile()
+    compiled_req_file2 = rand_tempfile()
+    installed_req_file = rand_tempfile()
 
     # Step 1
     print(f'Step 1: find all packages required by {min_req_file}.')
