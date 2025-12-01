@@ -168,16 +168,52 @@ def list_requirements(path):
     return reqs
 
 
-# Find packages that are platform dependent
-# from packaging.requirements import Requirement
-def find_platform_specific(req_file):
-    out = []
-    with open(req_file) as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            req = Requirement(line)
-            if req.marker is not None:  # platform-specific or conditional
-                out.append(line)
-    return out
+# # Find packages that are platform dependent
+# # from packaging.requirements import Requirement
+# def find_platform_specific(req_file):
+#     out = []
+#     with open(req_file) as f:
+#         for line in f:
+#             line = line.strip()
+#             if not line or line.startswith("#"):
+#                 continue
+#             req = Requirement(line)
+#             if req.marker is not None:  # platform-specific or conditional
+#                 out.append(line)
+#     return out
+
+# # Remove platform-specific requirements from a requirements file
+# def remove_platform_specific(req_file, output_file=None):
+#     platform_specific = []
+#     cleaned_lines = []
+
+#     with open(req_file) as f:
+#         for line in f:
+#             raw = line.rstrip("\n")
+#             stripped = raw.strip()
+
+#             # Keep comments and empty lines
+#             if not stripped or stripped.startswith("#"):
+#                 cleaned_lines.append(raw)
+#                 continue
+
+#             req = Requirement(stripped)
+
+#             # If there is a marker → it's platform-specific
+#             if req.marker is not None:
+#                 platform_specific.append(raw)
+#                 # Skip (delete) this line
+#                 continue
+
+#             # Keep non-platform-specific requirements
+#             cleaned_lines.append(raw)
+
+#     # Output file defaults to <original>.cleaned
+#     if output_file is None:
+#         output_file = req_file + ".cleaned"
+
+#     # Write cleaned requirements
+#     with open(output_file, "w") as f:
+#         f.write("\n".join(cleaned_lines) + "\n")
+
+#     return platform_specific
