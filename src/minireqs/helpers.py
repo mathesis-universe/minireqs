@@ -20,8 +20,8 @@ import importlib.metadata as md # Python 3.8+ required
 from importlib.metadata import version, PackageNotFoundError
 from packaging.requirements import Requirement
 import subprocess
-import sys
-import os
+import sys, os
+import tempfile, random, string
 from pathlib import Path
 
 
@@ -69,19 +69,45 @@ def safe_import(name):
             continue
     return None
 
+# Remove Comment Lines (leading whitespace allowed)
+def remove_hash_comment_lines(infile, outfile=None):
+    cleaned = []
+
+    with open(infile) as f:
+        for line in f:
+            stripped = line.lstrip()     # remove leading spaces/tabs
+            if stripped.startswith("#"): # comment line → skip
+                continue
+            cleaned.append(line.rstrip("\n"))
+
+    if outfile is None:
+        outfile = infile + ".cleaned"
+
+    with open(outfile, "w") as f:
+        f.write("\n".join(cleaned) + "\n")
+
+    return outfile
+
 
 # Use python -m uv pip compile to generate a full list 
 # of transitive packages including the original packages 
 # from a requirements file.
 # Running the command line scripts from python
 
-def compile_requirements(input_file, output_file=None, sys_platform=None):
+def compile_requirements(input_file, output_file, sys_platform=None):
     """
     Compile requirements file using uv pip compile.
 
     Popular sys_platform values: 'universal', 'win32', 'linux', 'darwin' 
     
     """
+
+    rand_tempfile = lambda: os.path.join(
+        tempfile.gettempdir(),
+        ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + ".txt"
+    )
+    compiled_req_file1 = rand_tempfile()
+
     cmd = [sys.executable, '-m', 'uv', 'pip', 'compile', input_file]
 
     if sys_platform == 'universal':
@@ -89,8 +115,7 @@ def compile_requirements(input_file, output_file=None, sys_platform=None):
     elif sys_platform is not None:
         cmd.extend(['--python-platform', sys_platform])
     
-    if output_file:
-        cmd.extend(['-o', output_file])
+    cmd.extend(['-o', compiled_req_file1])
     
     try:
         result = subprocess.run(
@@ -99,6 +124,7 @@ def compile_requirements(input_file, output_file=None, sys_platform=None):
             text=True,
             check=True  # Raises exception if return code is non-zero
         )
+        remove_hash_comment_lines(compiled_req_file1, output_file)
         print(f"Successfully compiled {input_file}")
         if result.stdout:
             print(result.stdout)
@@ -110,7 +136,6 @@ def compile_requirements(input_file, output_file=None, sys_platform=None):
     except FileNotFoundError:
         print("Error: 'uv' command not found. Make sure uv is installed.")
         return None
-
 
  
 # Check if the required packages in the requirements_file are installed in the current environment
@@ -168,16 +193,52 @@ def list_requirements(path):
     return reqs
 
 
-# Find packages that are platform dependent
-# from packaging.requirements import Requirement
-def find_platform_specific(req_file):
-    out = []
-    with open(req_file) as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            req = Requirement(line)
-            if req.marker is not None:  # platform-specific or conditional
-                out.append(line)
-    return out
+# # Find packages that are platform dependent
+# # from packaging.requirements import Requirement
+# def find_platform_specific(req_file):
+#     out = []
+#     with open(req_file) as f:
+#         for line in f:
+#             line = line.strip()
+#             if not line or line.startswith("#"):
+#                 continue
+#             req = Requirement(line)
+#             if req.marker is not None:  # platform-specific or conditional
+#                 out.append(line)
+#     return out
+
+# # Remove platform-specific requirements from a requirements file
+# def remove_platform_specific(req_file, output_file=None):
+#     platform_specific = []
+#     cleaned_lines = []
+
+#     with open(req_file) as f:
+#         for line in f:
+#             raw = line.rstrip("\n")
+#             stripped = raw.strip()
+
+#             # Keep comments and empty lines
+#             if not stripped or stripped.startswith("#"):
+#                 cleaned_lines.append(raw)
+#                 continue
+
+#             req = Requirement(stripped)
+
+#             # If there is a marker → it's platform-specific
+#             if req.marker is not None:
+#                 platform_specific.append(raw)
+#                 # Skip (delete) this line
+#                 continue
+
+#             # Keep non-platform-specific requirements
+#             cleaned_lines.append(raw)
+
+#     # Output file defaults to <original>.cleaned
+#     if output_file is None:
+#         output_file = req_file + ".cleaned"
+
+#     # Write cleaned requirements
+#     with open(output_file, "w") as f:
+#         f.write("\n".join(cleaned_lines) + "\n")
+
+#     return platform_specific
