@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "minireqs"                    # pip install name
-version = "0.5.4"
+version = "0.5.5"
 description = "A lightweight Python utility that scans .py files to detect all import statements, identifies the corresponding PyPI packages, and determines their installed version numbers. This tool automatically generates an accurate and minimal requirements.txt (or dependency list), making it ideal for packaging, deployment, and environment reproduction."
 readme = "README.md"
 license = {text = "LICENSE"}
