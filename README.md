@@ -40,21 +40,30 @@ Finds the corresponding PyPI package name and version for an import statement.
 ```bash
 pip install minireqs
 ```
-or
+If numpy<2.0.0 in your environment
 ```bash
-pip install minireqs[Numpy1]
+pip install minireqs[Numpy1] 
 ```
 
 ## Usage
 
+Python API
+
 ```python
-from minireqs.pip_package_extract import extract_pip_requirement, generate_full_requirements
+from minireqs import extract_pip_requirement, generate_full_requirements
 
 # Extract requirements from a file or directory
 df = extract_pip_requirement('my_script.py', 'requirements.txt')
 
 # Generate a full universal requirements file from a minimum requirements file
 generate_full_requirements(min_req_file, full_universal_req_file)
+```
+
+Command line interface (CLI)
+
+```bash
+python -m minireqs mini -i path/to/my-script.py -o path/to/req-mini.txt
+python -m minireqs full -i path/to/req-mini.txt -o path/to/req-full.txt
 ```
 
 ## Requirements

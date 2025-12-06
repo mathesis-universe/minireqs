@@ -108,7 +108,7 @@ def compile_requirements(input_file, output_file, sys_platform=None):
     )
     compiled_req_file1 = rand_tempfile()
 
-    cmd = [sys.executable, '-m', 'uv', 'pip', 'compile', input_file]
+    cmd = [sys.executable, '-m', 'uv', 'pip', 'compile', '--quiet', input_file]
 
     if sys_platform == 'universal':
         cmd.extend(['--universal'])

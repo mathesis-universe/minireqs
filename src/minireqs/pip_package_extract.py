@@ -160,7 +160,7 @@ def generate_full_requirements(min_req_file, full_universal_req_file):
     compiled_req_file1 = rand_tempfile()
     compiled_req_file2 = rand_tempfile()
     installed_req_file = rand_tempfile()
-
+    
     # Step 1
     print(f'Step 1: find all packages required by {min_req_file}.')
     compile_requirements(min_req_file, compiled_req_file1)  
